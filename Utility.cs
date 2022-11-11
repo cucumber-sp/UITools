@@ -25,6 +25,11 @@ namespace UITools
         static RectTransform canvas;
 
         /// <summary>
+        /// Rect Transform of the canvas
+        /// </summary>
+        public static RectTransform CanvasRectTransform  => canvas ??= GetCanvasRect();
+
+        /// <summary>
         /// Get the canvas pixel size
         /// </summary>
         public static Vector2 CanvasPixelSize

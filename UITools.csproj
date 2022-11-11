@@ -11,7 +11,7 @@
         <AssemblyName>UITools</AssemblyName>
         <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
         <FileAlignment>512</FileAlignment>
-        <LangVersion>8</LangVersion>
+        <LangVersion>9</LangVersion>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
         <PlatformTarget>AnyCPU</PlatformTarget>
@@ -40,8 +40,23 @@
         <Reference Include="Assembly-CSharp">
           <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Spaceflight Simulator\Spaceflight Simulator Game\Spaceflight Simulator_Data\Managed\Assembly-CSharp.dll</HintPath>
         </Reference>
+        <Reference Include="System">
+          <HintPath>..\SFSBuildSettings\References\System.dll</HintPath>
+        </Reference>
+        <Reference Include="System.Net.Http">
+          <HintPath>..\SFSBuildSettings\References\System.Net.Http.dll</HintPath>
+        </Reference>
+        <Reference Include="UniTask">
+          <HintPath>..\SFSBuildSettings\References\UniTask.dll</HintPath>
+        </Reference>
+        <Reference Include="UniTask.Linq">
+          <HintPath>..\SFSBuildSettings\References\UniTask.Linq.dll</HintPath>
+        </Reference>
         <Reference Include="UnityEngine">
           <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Spaceflight Simulator\Spaceflight Simulator Game\Spaceflight Simulator_Data\Managed\UnityEngine.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.AssetBundleModule">
+          <HintPath>..\SFSBuildSettings\References\UnityEngine.AssetBundleModule.dll</HintPath>
         </Reference>
         <Reference Include="UnityEngine.CoreModule">
           <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Spaceflight Simulator\Spaceflight Simulator Game\Spaceflight Simulator_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
@@ -52,11 +67,21 @@
         <Reference Include="UnityEngine.UI">
           <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Spaceflight Simulator\Spaceflight Simulator Game\Spaceflight Simulator_Data\Managed\UnityEngine.UI.dll</HintPath>
         </Reference>
+        <Reference Include="UnityEngine.UnityWebRequestAssetBundleModule">
+          <HintPath>..\SFSBuildSettings\References\UnityEngine.UnityWebRequestAssetBundleModule.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.UnityWebRequestModule">
+          <HintPath>..\SFSBuildSettings\References\UnityEngine.UnityWebRequestModule.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.UnityWebRequestWWWModule">
+          <HintPath>..\SFSBuildSettings\References\UnityEngine.UnityWebRequestWWWModule.dll</HintPath>
+        </Reference>
     </ItemGroup>
     <ItemGroup>
         <Compile Include="ConfigurationMenu.cs" />
         <Compile Include="ModSettings.cs" />
         <Compile Include="Elements.cs" />
+        <Compile Include="ModsUpdater.cs" />
         <Compile Include="PositionSaver.cs" />
         <Compile Include="UIExtensions.cs" />
         <Compile Include="Main.cs" />

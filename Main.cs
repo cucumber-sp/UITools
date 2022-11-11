@@ -1,5 +1,8 @@
-﻿using HarmonyLib;
+﻿using System;
+using System.Collections.Generic;
+using HarmonyLib;
 using ModLoader;
+using SFS.IO;
 using SFS.UI.ModGUI;
 using UnityEngine;
 
@@ -9,7 +12,7 @@ namespace UITools
     /// Main class of the mod
     /// </summary>
     // ReSharper disable once ClassNeverInstantiated.Global
-    public class Main : Mod
+    public class Main : Mod, IUpdatable
     {
         // Implementation
         
@@ -41,7 +44,19 @@ namespace UITools
             PositionSaver.Initialize();
         }
 
+        /// <summary>
+        /// Load
+        /// </summary>
+        public override async void Load()
+        {
+            await ModsUpdater.UpdateAll();
+        }
+
         Harmony patcher;
         void PatchAll() => (patcher ??= new Harmony("UITools")).PatchAll();
+
+        /// <inheritdoc />
+        //public Dictionary<string, FilePath> UpdatableFiles => new () { { new Uri(@"C:\Users\onisc\Desktop\C#\UITools\bin\Release\UITools.dll").AbsoluteUri, new FolderPath(ModFolder).ExtendToFile("UITools.dll") } };
+        public Dictionary<string, FilePath> UpdatableFiles => new () { { "https://github.com/cucumber-sp/UITools/releases/latest/download/UITools.dll", new FolderPath(ModFolder).ExtendToFile("UITools.dll") } };
     }
 }

@@ -163,7 +163,7 @@ namespace UITools
         /// <inheritdoc />
         public override Vector2 Size
         {
-            get => openedSize.Value;
+            get => base.Size;
             set => openedSize.Value = value;
         }
 
