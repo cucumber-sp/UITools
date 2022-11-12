@@ -3,9 +3,10 @@ Source code for UI Tools mod, a dependency you can use for your mods to make imp
 
 # Current Features
 - Automatically generated configuration menu for mods.
+- Allow your mod to receive auto-updates.
 - Register windows for permanent position saving.
 - Easily register events when windows are dragged and dropped.
-- Make windows minimizable.
+- Make windows minimizable, and capture events when the state changes.
 - Number inputs, with arrow keys that change the value by an amount you specify.
 
 # How to Use
