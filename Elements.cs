@@ -160,6 +160,11 @@ namespace UITools
         Button minimizeButton;
         Transform minimizeButtonText;
 
+        /// <summary>
+        /// Fired every time minimized state changed
+        /// </summary>
+        public event Action OnMinimizedChangedEvent;
+
         /// <inheritdoc />
         public override Vector2 Size
         {
@@ -189,6 +194,7 @@ namespace UITools
             LayoutRebuilder.ForceRebuildLayoutImmediate(ChildrenHolder as RectTransform);
             minimizeButton.Position = new Vector2(-(openedSize.Value.x / 2 - 25), -25);
             minimizeButtonText.TweenLocalRotate(new Vector3(0, 0, value ? 90 : 0), 0.15f, true);
+            OnMinimizedChangedEvent?.Invoke();
         }
 
         /// <inheritdoc />
