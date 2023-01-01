@@ -142,7 +142,7 @@ namespace UITools
 
         void OnInputFieldChanged(string value)
         {
-            if (value.EndsWith("."))
+            if (value.EndsWith(".") || (value.Contains(".") && value.EndsWith("0")))
                 return;
             if (float.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out float result))
                 Value = result;

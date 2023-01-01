@@ -114,15 +114,15 @@ namespace UITools
             if (elements.Count == 0)
                 return;
             holder.SetActive(true);
-            SetScreen(elements[0].name);
+            SetScreen(elements[0].name, elements[0].createWindowFunc, 0);
         }
 
-        void SetScreen(string name)
+        void SetScreen(string name, Func<Transform,GameObject> createWindowFunc, int index)
         {
             if (name == string.Empty)
                 SetPlaceholder();
             else
-                SetByName(name);
+                SetByFunc(name, createWindowFunc, index);
         }
 
         void SetPlaceholder()
@@ -132,22 +132,22 @@ namespace UITools
             currentDataScreen = dataBox.gameObject;
         }
 
-        void SetByName(string name)
+        void SetByFunc(string name, Func<Transform,GameObject> createWindowFunc, int index)
         {
             Object.Destroy(currentDataScreen);
-            currentDataScreen = elements.FirstOrDefault(x => x.name == name).createWindowFunc?.Invoke(mainWindow) ??
-                                Builder.CreateBox(mainWindow, RecommendedContentSize.x, RecommendedContentSize.y).gameObject;
-            foreach (Button button in categoriesButtons)
-            {
-                button.gameObject.GetComponent<ButtonPC>().SetSelected(button.Text == name);
-            }
+            currentDataScreen = createWindowFunc.Invoke(mainWindow) ?? Builder.CreateBox(mainWindow, RecommendedContentSize.x, RecommendedContentSize.y).gameObject;
+
+            for (int i = 0; i < categoriesButtons.Count; i++)
+                categoriesButtons[i].gameObject.GetComponent<ButtonPC>().SetSelected(i == index);
+
             LayoutRebuilder.ForceRebuildLayoutImmediate(currentDataScreen.transform as RectTransform);
         }
         
         void AddMenu(string name, Func<Transform, GameObject> createWindowFunc)
         {
             elements.Add((name, createWindowFunc));
-            Button selectButton = Builder.CreateButton(categoriesButtonsBox, 180, 60, 0, 0, () => SetScreen(name), name);
+            int index = elements.Count - 1;
+            Button selectButton = Builder.CreateButton(categoriesButtonsBox, 180, 60, 0, 0, () => SetScreen(name, createWindowFunc, index), name);
             categoriesButtons.Add(selectButton);
         }
 
