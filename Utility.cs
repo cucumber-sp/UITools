@@ -1,6 +1,12 @@
+using System;
+using Cysharp.Threading.Tasks;
+using JetBrains.Annotations;
+using SFS.Input;
+using SFS.UI;
 using SFS.UI.ModGUI;
 using SFS.Variables;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace UITools
 {
@@ -20,6 +26,7 @@ namespace UITools
     /// <summary>
     /// Utility for UI
     /// </summary>
+    [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
     public static class UIUtility
     {
         static RectTransform canvas;
@@ -48,5 +55,40 @@ namespace UITools
             return result;
         }
 
+    }
+
+    /// <summary>
+    /// Opens MenuGenerator as async functions
+    /// </summary>
+    [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
+    public static class AsyncDialogs
+    {
+        /// <summary>
+        /// Works same as MenuGenerator.OpenConfirmation. Returns true if the user pressed the confirm button.
+        /// </summary>
+        public static async UniTask<bool> OpenConfirmation(CloseMode closeMode, Func<string> text, Func<string> confirmText)
+        {
+            ConfirmationAwaiter awaiter = new ();
+            MenuGenerator.OpenConfirmation(closeMode, text, confirmText, () => awaiter.OnAction(true), onDeny: () => awaiter.OnAction(false));
+            return await awaiter.WaitForConfirmation();
+        }
+
+        class ConfirmationAwaiter
+        {
+            bool closed;
+            bool result;
+            internal async UniTask<bool> WaitForConfirmation()
+            {
+                while(!closed)
+                    await UniTask.Yield();
+                return result;
+            }
+
+            internal void OnAction(bool res)
+            {
+                closed = true;
+                result = res;
+            }
+        }
     }
 }

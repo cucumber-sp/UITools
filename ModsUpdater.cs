@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
 using Cysharp.Threading.Tasks;
 using ModLoader;
@@ -10,18 +8,15 @@ using System.Security.Cryptography;
 using SFS.Input;
 using SFS.IO;
 using SFS.UI;
-using SFS.UI.ModGUI;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace UITools
 {
     static class ModsUpdater
     {
-        static HttpClient http = new ();
+        static readonly HttpClient Http = new ();
         static readonly MD5 MD5 = MD5.Create();
-        static LoadingScreen loadingScreen;
-        static int loadedFiles = 0;
+        static int loadedFiles;
         public static async UniTask UpdateAll()
         {
             try
@@ -30,7 +25,6 @@ namespace UITools
                 if (mods.Length == 0)
                     return;
 
-                loadingScreen = LoadingMenu();
                 foreach (IUpdatable mod in mods)
                     await Update(mod);
             }
@@ -40,7 +34,6 @@ namespace UITools
             }
             finally
             {
-                loadingScreen.Close();
                 if (loadedFiles > 0)
                     MenuGenerator.OpenConfirmation(CloseMode.Current, () => "Some files were updated. Do you want to restart the game?", () => "Restart",ApplicationUtility.Relaunch);
             }
@@ -50,11 +43,8 @@ namespace UITools
         {
             foreach (KeyValuePair<string, FilePath> file in mod.UpdatableFiles)
             {
-                loadingScreen.SetModUpdating((mod as Mod).DisplayName);
-                loadingScreen.SetFileLoading(file.Value.FileName);
-
                 HttpRequestMessage request = new (HttpMethod.Head, file.Key);
-                HttpResponseMessage response = await http.SendAsync(request);
+                HttpResponseMessage response = await Http.SendAsync(request);
 
                 if (!response.IsSuccessStatusCode)
                     continue;
@@ -64,9 +54,11 @@ namespace UITools
 
                 if (md5HashLocal.SequenceEqual(md5HashRemote))
                     continue;
+                if (!await AsyncDialogs.OpenConfirmation(CloseMode.Current, () => $"Update for {(mod as Mod)?.DisplayName} is available. Update?", () => "Update"))
+                    continue;
 
                 request = new(HttpMethod.Get, file.Key);
-                response = await http.SendAsync(request);
+                response = await Http.SendAsync(request);
 
                 byte[] data = await response.Content.ReadAsByteArrayAsync();
                 if (data != null)
@@ -74,52 +66,6 @@ namespace UITools
                     file.Value.WriteBytes(data);
                     loadedFiles += 1;
                 }
-            }
-        }
-
-        static LoadingScreen LoadingMenu()
-        { 
-            GameObject holder = Builder.CreateHolder(Builder.SceneToAttach.CurrentScene, "LoadingScreen");
-
-            Box background = Builder.CreateBox(holder.transform, 10000, 10000, opacity: 1);
-            background.Color = new Color(41 / 255f, 41 / 255f, 41 / 255f, 1);
-            background.gameObject.AddComponent<ButtonPC>();
-            
-            Window window = Builder.CreateWindow(holder.transform, 0, 1200, 800, 0, 400, false, false, 1, "Mods Updater");
-
-            Label loadingMod = Builder.CreateLabel(holder.transform, 400, 50,0, 50,  text: "Updating Example Mod");
-            
-            Label loadingFile = Builder.CreateLabel(holder.transform, 400, 35, 0, -35, text: "Loading example.txt    85.4%");
-
-            window.Active = false;
-
-            return new LoadingScreen(holder, loadingMod, loadingFile);;
-        }
-
-        class LoadingScreen
-        {
-            GameObject holder;
-            Label fileLoading;
-            Label modLoading;
-
-            public LoadingScreen(GameObject holder, Label modLoading, Label fileLoading)
-            {
-                this.holder = holder;
-                this.fileLoading = fileLoading;
-                this.modLoading = modLoading;
-            }
-
-            public void Close()
-            {
-                Object.Destroy(holder);
-            }
-            public void SetFileLoading(string file)
-            {
-                fileLoading.Text = $"Loading {file}...";
-            }
-            public void SetModUpdating(string file)
-            {
-                modLoading.Text = $"Updating {file}";
             }
         }
     }

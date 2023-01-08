@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using JetBrains.Annotations;
 using SFS.Tween;
 using SFS.UI;
 using SFS.UI.ModGUI;
@@ -10,11 +11,14 @@ using Button = SFS.UI.ModGUI.Button;
 using Object = UnityEngine.Object;
 using Type = SFS.UI.ModGUI.Type;
 
+// ReSharper disable InconsistentNaming
+
 namespace UITools
 {
     /// <summary>
     ///     Builder for advanced UITools elements
     /// </summary>
+    [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
     public static class UIToolsBuilder
     {
         /// <summary>
@@ -60,6 +64,7 @@ namespace UITools
     /// <summary>
     ///     Default input styled input for decimal number with arrow buttons
     /// </summary>
+    [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
     public class NumberInput : GUIElement
     {
         readonly Button buttonLeft;
@@ -142,7 +147,7 @@ namespace UITools
 
         void OnInputFieldChanged(string value)
         {
-            if (value.EndsWith(".") || (value.Contains(".") && value.EndsWith("0")))
+            if (value.EndsWith(".") || value == "-0" || (value.Contains(".") && value.EndsWith("0")))
                 return;
             if (float.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out float result))
                 Value = result;
@@ -152,10 +157,11 @@ namespace UITools
     /// <summary>
     /// Window with minimize button
     /// </summary>
+    [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
     public class ClosableWindow : Window
     {
-        Vector2_Local openedSize = new Vector2_Local();
-        Bool_Local minimized = new Bool_Local() {Value = true};
+        Vector2_Local openedSize = new ();
+        Bool_Local minimized = new () {Value = true};
         
         Button minimizeButton;
         Transform minimizeButtonText;

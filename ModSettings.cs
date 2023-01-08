@@ -1,4 +1,5 @@
 using System;
+using JetBrains.Annotations;
 using SFS.IO;
 using SFS.Parsers.Json;
 
@@ -8,6 +9,7 @@ namespace UITools
     /// Abstract class that let you easily create your mod configuration
     /// </summary>
     /// <typeparam name="T">Data type which will be stored in config file</typeparam>
+    [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
     public abstract class ModSettings<T> where T: new()
     {
         /// <summary>

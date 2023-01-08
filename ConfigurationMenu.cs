@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using SFS.UI;
 using SFS.UI.ModGUI;
 using UnityEngine;
@@ -114,15 +113,15 @@ namespace UITools
             if (elements.Count == 0)
                 return;
             holder.SetActive(true);
-            SetScreen(elements[0].name, elements[0].createWindowFunc, 0);
+            SetScreen(elements[0].createWindowFunc, 0);
         }
 
-        void SetScreen(string name, Func<Transform,GameObject> createWindowFunc, int index)
+        void SetScreen(Func<Transform,GameObject> createWindowFunc, int index)
         {
-            if (name == string.Empty)
+            if (createWindowFunc is null)
                 SetPlaceholder();
             else
-                SetByFunc(name, createWindowFunc, index);
+                SetByFunc(createWindowFunc, index);
         }
 
         void SetPlaceholder()
@@ -132,7 +131,7 @@ namespace UITools
             currentDataScreen = dataBox.gameObject;
         }
 
-        void SetByFunc(string name, Func<Transform,GameObject> createWindowFunc, int index)
+        void SetByFunc(Func<Transform,GameObject> createWindowFunc, int index)
         {
             Object.Destroy(currentDataScreen);
             currentDataScreen = createWindowFunc.Invoke(mainWindow) ?? Builder.CreateBox(mainWindow, RecommendedContentSize.x, RecommendedContentSize.y).gameObject;
@@ -147,7 +146,7 @@ namespace UITools
         {
             elements.Add((name, createWindowFunc));
             int index = elements.Count - 1;
-            Button selectButton = Builder.CreateButton(categoriesButtonsBox, 180, 60, 0, 0, () => SetScreen(name, createWindowFunc, index), name);
+            Button selectButton = Builder.CreateButton(categoriesButtonsBox, 180, 60, 0, 0, () => SetScreen(createWindowFunc, index), name);
             categoriesButtons.Add(selectButton);
         }
 

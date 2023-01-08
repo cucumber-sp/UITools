@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using SFS.IO;
 using SFS.Parsers.Json;
 using SFS.UI.ModGUI;
@@ -9,6 +10,7 @@ namespace UITools
     /// <summary>
     /// Utility class that adds extra saving functionality
     /// </summary>
+    [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
     public static class PositionSaver
     {
         static Dictionary<string, Vector2> windows;

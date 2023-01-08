@@ -13,7 +13,7 @@ namespace UITools
         internal static event Action OnSettingsMenuClosed;
         internal static event Action OnSettingsMenuOpened;
 
-        internal static readonly GameObject_Local settingsMenu = new GameObject_Local{Value = null};
+        internal static readonly GameObject_Local settingsMenu = new (){Value = null};
 
         [HarmonyPatch(typeof(BasicMenu), nameof(BasicMenu.OnOpen))]
         class BaseMenu_Open
