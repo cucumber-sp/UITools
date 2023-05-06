@@ -6,3 +6,5 @@ bin/
 Help/
 
 obj/
+
+*.user

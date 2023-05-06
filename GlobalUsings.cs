@@ -1,0 +1,15 @@
+global using System;
+global using System.Globalization;
+global using JetBrains.Annotations;
+global using SFS.UI;
+global using SFS.UI.ModGUI;
+global using UnityEngine;
+global using UnityEngine.UI;
+global using System.Collections.Generic;
+global using System.Linq;
+global using System.Net.Http;
+global using System.Security.Cryptography;
+global using Cysharp.Threading.Tasks;
+global using ModLoader;
+global using SFS.Input;
+global using SFS.IO;
