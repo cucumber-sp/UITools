@@ -103,13 +103,13 @@ public class Main : Mod, IUpdatable
         ConfigurationMenu.Initialize();
         PositionSaver.Initialize();
 
-        Config.Load();
-
         /*
             ModFolder is an existing variable in the base class. It cannot be accessed by other classes by
             default, so we copy it to the var.
         */
         modFolder = new FolderPath(ModFolder);
+
+        Config.Load();
     }
 
     /// <summary>
@@ -120,7 +120,7 @@ public class Main : Mod, IUpdatable
         // Check for the presence of the DisableModUpdates flag in any assembly
 
 
-        if (Config.settings.disableModUpdates)
+        if (!Config.settings.disableModUpdates)
         {
             await ModsUpdater.UpdateAll();
         }
