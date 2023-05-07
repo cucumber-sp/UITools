@@ -1,6 +1,49 @@
 ﻿using HarmonyLib;
+using ModLoader;
+using SFS.Variables;
+using SFS.IO;
 
 namespace UITools;
+
+/// <summary>
+///     Class that does Update Checking on off
+/// </summary>
+
+[Serializable]
+public class Data
+{
+    // Bool_Local and Float_Local are classes in SFS.Variables that let you detect onChange events.
+    public Bool_Local disableModUpdates = new Bool_Local();
+}
+
+
+
+public class Config : ModSettings<Data>
+{
+    static Config main;
+
+    Action saveAction;
+
+    protected override FilePath SettingsFile { get; } = Main.modFolder.ExtendToFile("Config.txt");
+
+    public static void Load()
+    {
+        main = new Config();
+        main.Initialize();
+    }
+
+    protected override void RegisterOnVariableChange(Action onChange)
+    {
+        /*
+        This tells it to save when the vars are changed. You need to do this for every 
+        var you want to save, so every time a value changes it is immediately saved.
+
+        Technically you can just tie this to some other event like the game closing, but 
+        that is bad practice.
+        */
+        settings.disableModUpdates.OnChange += onChange;
+    }
+}
 
 /// <summary>
 ///     Main class of the mod
@@ -51,12 +94,22 @@ public class Main : Mod, IUpdatable
         }
     };
 
+    public static FolderPath modFolder;
+
     /// <summary>Early Load</summary>
     public override void Early_Load()
     {
         PatchAll();
         ConfigurationMenu.Initialize();
         PositionSaver.Initialize();
+
+        Config.Load();
+
+        /*
+            ModFolder is an existing variable in the base class. It cannot be accessed by other classes by
+            default, so we copy it to the var.
+        */
+        modFolder = new FolderPath(ModFolder);
     }
 
     /// <summary>
@@ -64,7 +117,13 @@ public class Main : Mod, IUpdatable
     /// </summary>
     public override async void Load()
     {
-        await ModsUpdater.UpdateAll();
+        // Check for the presence of the DisableModUpdates flag in any assembly
+
+
+        if (Config.settings.disableModUpdates)
+        {
+            await ModsUpdater.UpdateAll();
+        }
     }
 
     void PatchAll()
