@@ -16,37 +16,48 @@ namespace UITools
 {
     internal static class ModsUpdater
     {
+        // Shared HttpClient instance
         private static readonly HttpClient Http = new();
+
+        // Tracks how many files were successfully updated
         private static int loadedFiles;
 
+        // Entry point for running the update process detached from scene context
         public static void StartUpdate()
         {
             UpdateAll().Forget();
         }
 
+        // Main update flow
         private static async UniTask UpdateAll()
         {
             try
             {
+                // Check which files need updating (based on hash mismatch or failures)
                 var updatesByMod = await GetFilesNeedingUpdate();
                 if (updatesByMod.Count == 0) return;
 
+                // Ask user to confirm update
                 if (!await ConfirmUpdatePrompt(updatesByMod))
                     return;
 
+                // Tracks failed mods and which files failed in each
                 var failedMods = new Dictionary<Mod, List<string>>();
 
+                // Attempt update per mod
                 foreach (var entry in updatesByMod)
                 {
                     Mod mod = entry.Key;
                     var files = entry.Value;
 
                     if (await TryUpdateMod(mod, files, failedMods)) continue;
-                    
+
+                    // Ensure mod is listed in failedMods if any file fails
                     if (!failedMods.ContainsKey(mod))
                         failedMods[mod] = new List<string>();
                 }
 
+                // Retry failed mods if user agrees
                 if (failedMods.Count > 0 && await ConfirmRetryPrompt(failedMods.Keys))
                 {
                     foreach (Mod mod in failedMods.Keys.ToList())
@@ -56,6 +67,7 @@ namespace UITools
                             failedMods.Remove(mod);
                     }
 
+                    // Show final list of failed files (if any)
                     if (failedMods.Count > 0)
                         await ShowFailedModsPrompt(failedMods);
                 }
@@ -66,6 +78,7 @@ namespace UITools
             }
             finally
             {
+                // If any files were updated, offer to restart
                 if (loadedFiles > 0)
                     MenuGenerator.OpenConfirmation(CloseMode.Current,
                         () => "Updates successful. Restart so changes take effect?",
@@ -74,6 +87,7 @@ namespace UITools
             }
         }
 
+        // Returns a dictionary of mods -> files that need updating
         private static async UniTask<Dictionary<Mod, List<(string url, FilePath path)>>> GetFilesNeedingUpdate()
         {
             var result = new Dictionary<Mod, List<(string, FilePath)>>();
@@ -90,6 +104,7 @@ namespace UITools
 
                     try
                     {
+                        // Check remote MD5 hash
                         var hashUrl =
                             $"https://files.cucumber-space.online/api/hashes/md5?file={Uri.EscapeDataString(url)}";
                         HttpResponseMessage resp = await Http.GetAsync(hashUrl);
@@ -98,6 +113,7 @@ namespace UITools
                         var local = path.FileExists() ? md5.ComputeHash(path.ReadBytes()) : Array.Empty<byte>();
                         var remote = Convert.FromBase64String(await resp.Content.ReadAsStringAsync());
 
+                        // If hash mismatch, mark for update
                         if (!local.SequenceEqual(remote))
                         {
                             if (!result.ContainsKey(mod))
@@ -118,6 +134,7 @@ namespace UITools
             return result;
         }
 
+        // Attempts to update all files for a single mod atomically
         private static async UniTask<bool> TryUpdateMod(Mod mod, List<(string url, FilePath path)> files,
             Dictionary<Mod, List<string>> failedMods)
         {
@@ -162,6 +179,7 @@ namespace UITools
                 }
             }));
 
+            // If all downloads succeed, commit updates
             if (failedFiles.Count == 0)
             {
                 foreach ((FilePath original, string tempPath) download in downloads)
@@ -175,8 +193,10 @@ namespace UITools
                 return true;
             }
 
+            // Record failed files
             failedMods[mod] = failedFiles;
 
+            // Clean up downloaded files if not committed
             foreach ((FilePath original, string tempPath) download in downloads.Where(download =>
                          File.Exists(download.tempPath)))
                 File.Delete(download.tempPath);
@@ -185,6 +205,7 @@ namespace UITools
             return false;
         }
 
+        // Download a file and write to disk
         private static async UniTask<bool> Download(string url, string path)
         {
             try
@@ -205,6 +226,7 @@ namespace UITools
             }
         }
 
+        // Confirmation prompt before updates begin
         private static async UniTask<bool> ConfirmUpdatePrompt(
             Dictionary<Mod, List<(string url, FilePath path)>> updates)
         {
@@ -217,6 +239,7 @@ namespace UITools
                 () => "Update All");
         }
 
+        // Retry prompt for mods that failed to update
         private static async UniTask<bool> ConfirmRetryPrompt(IEnumerable<Mod> failed)
         {
             var list = string.Join("\n", failed.Select(m => m.DisplayName));
@@ -225,6 +248,7 @@ namespace UITools
                 () => "Retry");
         }
 
+        // Show which files failed after retry
         private static async UniTask ShowFailedModsPrompt(Dictionary<Mod, List<string>> failedMods)
         {
             var msg = string.Join("\n\n", failedMods.OrderBy(m => m.Key.DisplayName)
