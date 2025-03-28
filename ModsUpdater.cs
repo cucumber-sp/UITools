@@ -41,9 +41,10 @@ namespace UITools
                     Mod mod = entry.Key;
                     var files = entry.Value;
 
-                    if (!await TryUpdateMod(mod, files, failedMods))
-                        if (!failedMods.ContainsKey(mod))
-                            failedMods[mod] = new List<string>();
+                    if (await TryUpdateMod(mod, files, failedMods)) continue;
+                    
+                    if (!failedMods.ContainsKey(mod))
+                        failedMods[mod] = new List<string>();
                 }
 
                 if (failedMods.Count > 0 && await ConfirmRetryPrompt(failedMods.Keys))
@@ -176,7 +177,8 @@ namespace UITools
 
             failedMods[mod] = failedFiles;
 
-            foreach ((FilePath original, string tempPath) download in downloads.Where(download => File.Exists(download.tempPath)))
+            foreach ((FilePath original, string tempPath) download in downloads.Where(download =>
+                         File.Exists(download.tempPath)))
                 File.Delete(download.tempPath);
             if (Directory.Exists(tempDir)) Directory.Delete(tempDir, true);
 
@@ -211,7 +213,7 @@ namespace UITools
                 .Select(kvp => kvp.Key.DisplayName));
 
             return await MenuGenerator.OpenConfirmationAsync(CloseMode.Current,
-                () => $"Updates are available for the following mods:\n\n{list}\n\nDo you want to update all?",
+                () => $"Updates are available for the following mods:\n\n{list}\n\nInstall now?",
                 () => "Update All");
         }
 
