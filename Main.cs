@@ -15,7 +15,7 @@ namespace UITools
     {
         internal static Main main;
 
-        Harmony patcher;
+        private Harmony patcher;
 
         /// <summary>Default constructor</summary>
         public Main()
@@ -34,10 +34,10 @@ namespace UITools
         public override string Author => "StarMods";
 
         /// <summary>MinimumGameVersionNecessary</summary>
-        public override string MinimumGameVersionNecessary => "1.5.8";
+        public override string MinimumGameVersionNecessary => "1.5.10.2";
 
         /// <summary>ModVersion</summary>
-        public override string ModVersion => "1.1.5";
+        public override string ModVersion => "1.1.6";
 
         /// <summary>Description</summary>
         public override string Description =>
@@ -66,12 +66,12 @@ namespace UITools
         /// <summary>
         ///     Load
         /// </summary>
-        public override async void Load()
+        public override void Load()
         {
-            await ModsUpdater.UpdateAll();
+            ModsUpdater.StartUpdate();
         }
 
-        void PatchAll()
+        private void PatchAll()
         {
             (patcher ??= new Harmony("UITools")).PatchAll();
         }
