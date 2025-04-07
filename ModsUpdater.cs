@@ -109,10 +109,11 @@ namespace UITools
                             $"https://files.cucumber-space.online/api/hashes/md5?file={Uri.EscapeDataString(url)}";
                         HttpResponseMessage resp = await Http.GetAsync(hashUrl);
                         if (!resp.IsSuccessStatusCode) throw new Exception("Hash request failed");
-
+                
                         var local = path.FileExists() ? md5.ComputeHash(path.ReadBytes()) : Array.Empty<byte>();
-                        var remote = Convert.FromBase64String(await resp.Content.ReadAsStringAsync());
-
+                        var remoteHashBase64 = await resp.Content.ReadAsStringAsync();
+                        var remote = Convert.FromBase64String(remoteHashBase64);
+                        
                         // If hash mismatch, mark for update
                         if (!local.SequenceEqual(remote))
                         {
@@ -121,12 +122,17 @@ namespace UITools
                             result[mod].Add((url, path));
                         }
                     }
+                    catch (HttpRequestException ex)
+                    {
+                        Debug.LogWarning($"[ModUpdater] Network error while checking hash for {url}: {ex.Message}");
+                    }
+                    catch (FormatException ex)
+                    {
+                        Debug.LogWarning($"[ModUpdater] Invalid base64 hash from server for {url}: {ex.Message}");
+                    }
                     catch (Exception ex)
                     {
-                        Debug.Log($"[ModUpdater] Failed to check hash for {url}: {ex.Message}");
-                        if (!result.ContainsKey(mod))
-                            result[mod] = new List<(string, FilePath)>();
-                        result[mod].Add((url, path));
+                        Debug.Log($"[ModUpdater] Unexpected error while checking hash for {url}: {ex.Message}");
                     }
                 }
             }
