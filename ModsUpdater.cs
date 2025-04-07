@@ -17,10 +17,10 @@ namespace UITools
     internal static class ModsUpdater
     {
         // Shared HttpClient instance
-        private static readonly HttpClient Http = new();
+        static readonly HttpClient Http = new();
 
         // Tracks how many files were successfully updated
-        private static int loadedFiles;
+        static int loadedFiles;
 
         // Entry point for running the update process detached from scene context
         public static void StartUpdate()
@@ -29,7 +29,7 @@ namespace UITools
         }
 
         // Main update flow
-        private static async UniTask UpdateAll()
+        static async UniTask UpdateAll()
         {
             try
             {
@@ -88,7 +88,7 @@ namespace UITools
         }
 
         // Returns a dictionary of mods -> files that need updating
-        private static async UniTask<Dictionary<Mod, List<(string url, FilePath path)>>> GetFilesNeedingUpdate()
+        static async UniTask<Dictionary<Mod, List<(string url, FilePath path)>>> GetFilesNeedingUpdate()
         {
             var result = new Dictionary<Mod, List<(string, FilePath)>>();
             using var md5 = MD5.Create();
@@ -141,7 +141,7 @@ namespace UITools
         }
 
         // Attempts to update all files for a single mod atomically
-        private static async UniTask<bool> TryUpdateMod(Mod mod, List<(string url, FilePath path)> files,
+        static async UniTask<bool> TryUpdateMod(Mod mod, List<(string url, FilePath path)> files,
             Dictionary<Mod, List<string>> failedMods)
         {
             var tempDir = Path.Combine(Path.GetTempPath(), "ModUpdates", Guid.NewGuid().ToString());
@@ -212,7 +212,7 @@ namespace UITools
         }
 
         // Download a file and write to disk
-        private static async UniTask<bool> Download(string url, string path)
+        static async UniTask<bool> Download(string url, string path)
         {
             try
             {
@@ -233,7 +233,7 @@ namespace UITools
         }
 
         // Confirmation prompt before updates begin
-        private static async UniTask<bool> ConfirmUpdatePrompt(
+        static async UniTask<bool> ConfirmUpdatePrompt(
             Dictionary<Mod, List<(string url, FilePath path)>> updates)
         {
             var list = string.Join("\n", updates
@@ -246,7 +246,7 @@ namespace UITools
         }
 
         // Retry prompt for mods that failed to update
-        private static async UniTask<bool> ConfirmRetryPrompt(IEnumerable<Mod> failed)
+        static async UniTask<bool> ConfirmRetryPrompt(IEnumerable<Mod> failed)
         {
             var list = string.Join("\n", failed.Select(m => m.DisplayName));
             return await MenuGenerator.OpenConfirmationAsync(CloseMode.Current,
@@ -255,7 +255,7 @@ namespace UITools
         }
 
         // Show which files failed after retry
-        private static async UniTask ShowFailedModsPrompt(Dictionary<Mod, List<string>> failedMods)
+        static async UniTask ShowFailedModsPrompt(Dictionary<Mod, List<string>> failedMods)
         {
             var msg = string.Join("\n\n", failedMods.OrderBy(m => m.Key.DisplayName)
                 .Select(kvp =>
