@@ -124,11 +124,14 @@ namespace UITools
                     }
                     catch (HttpRequestException ex)
                     {
-                        Debug.LogWarning($"[ModUpdater] Network error while checking hash for {url}: {ex.Message}");
+                        var message = $"[ModUpdater] Network error while checking hash for {url}: {ex.Message}";
+                        if (ex.InnerException != null)
+                            message += "\nInner: " + ex.InnerException.GetType().Name + " - " + ex.InnerException.Message;
+                        Debug.Log(message);
                     }
                     catch (FormatException ex)
                     {
-                        Debug.LogWarning($"[ModUpdater] Invalid base64 hash from server for {url}: {ex.Message}");
+                        Debug.Log($"[ModUpdater] Invalid base64 hash from server for {url}: {ex.Message}");
                     }
                     catch (Exception ex)
                     {
